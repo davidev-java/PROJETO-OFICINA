@@ -21,7 +21,6 @@ public class ClienteService {
     // =========================
     // CRIAR CLIENTE
     // =========================
-
     public Cliente criarCliente(Cliente cliente) {
 
         clienteValidate.validarCliente(cliente);

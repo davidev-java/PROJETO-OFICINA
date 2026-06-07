@@ -12,12 +12,14 @@ import java.util.UUID;
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID> {
 
-    List<OrdemServico> findByCliente_id(UUID cliente_id);
+    List<OrdemServico> findByClienteId(UUID clienteId);
 
-    List<OrdemServico> findByVeiculo_id(UUID veiculo_id);
+    List<OrdemServico> findByVeiculoId(UUID veiculoId);
 
     List<OrdemServico> findByStatus(StatusOS status);
 
     Optional<OrdemServico> findByNumeroOs(String numeroOs);
+
+    boolean existsById(UUID id);
 
 }

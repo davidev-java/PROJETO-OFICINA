@@ -1,14 +1,16 @@
 package com.novanest.projetooficina.service;
 
+import com.novanest.projetooficina.dto.cliente.ClienteRequestDTO;
+import com.novanest.projetooficina.dto.cliente.ClienteResponseDTO;
 import com.novanest.projetooficina.entity.Cliente;
 import com.novanest.projetooficina.exception.ClienteNaoEncontradoException;
+import com.novanest.projetooficina.mapper.ClienteMapper;
 import com.novanest.projetooficina.repository.ClienteRepository;
 import com.novanest.projetooficina.validate.ClienteValidate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -17,11 +19,14 @@ public class ClienteService {
 
         private final ClienteRepository clienteRepository;
         private final ClienteValidate clienteValidate;
+        private final ClienteMapper clienteMapper;
 
     // =========================
     // CRIAR CLIENTE
     // =========================
-    public Cliente criarCliente(Cliente cliente) {
+    public ClienteResponseDTO criarCliente(ClienteRequestDTO dto) {
+
+        Cliente cliente = clienteMapper.toEntity(dto);
 
         clienteValidate.validarCliente(cliente);
 
@@ -38,60 +43,71 @@ public class ClienteService {
             throw new IllegalArgumentException("CNPJ já cadastrado");
         }
 
-        return clienteRepository.save(cliente);
+        Cliente salvo = clienteRepository.save(cliente);
+
+        return clienteMapper.toDTO(salvo);
     }
 
     // =========================
     // LISTAR TODOS
     // =========================
-    public List<Cliente> listarTodos() {
-        return clienteRepository.findAll();
+    public List<ClienteResponseDTO> listarTodos() {
+
+        return clienteRepository.findAll()
+                .stream()
+                .map(clienteMapper::toDTO)
+                .toList();
     }
 
     // =========================
     // BUSCAR POR ID
     // =========================
-    public Cliente buscarPorId(UUID id) {
-        return clienteRepository.findById(id)
+    public ClienteResponseDTO buscarPorId(UUID id) {
+
+        Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente não encontrado"));
+
+        return clienteMapper.toDTO(cliente);
     }
 
+
     // =========================
-    // BUSCAR POR EMAIL
+    // BUSCAR POR ID ENTITY
     // =========================
-    public Cliente buscarPorEmail(String email) {
-        return clienteRepository.findByEmail(email)
-                .orElseThrow(() -> new ClienteNaoEncontradoException("Email não encontrado"));
+    public Cliente buscarPorIdEntity(UUID id) {
+        return clienteRepository.findById(id)
+                .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente não encontrado"));
     }
 
 
     // =========================
     // BUSCAR POR CPF
     // =========================
-    public Cliente buscarPorCpf(String cpf) {
-        return clienteRepository.findByCpf(cpf)
+    public ClienteResponseDTO buscarPorCpf(String cpf) {
+        Cliente cliente = clienteRepository.findByCpf(cpf)
                 .orElseThrow(() -> new ClienteNaoEncontradoException("CPF não encontrado"));
+
+        return clienteMapper.toDTO(cliente);
     }
 
     // =========================
     // BUSCAR POR NOME IGNORANDO PARTES INCOMPLETAS
     // =========================
-    public List<Cliente> buscarPorNome(String nome) {
+    public List<ClienteResponseDTO> buscarPorNome(String nome) {
+
         List<Cliente> clientes = clienteRepository.findByNomeContainingIgnoreCase(nome);
 
-        if (clientes.isEmpty()) {
-            throw new ClienteNaoEncontradoException("Nenhum cliente encontrado com esse nome");
-        }
-
-        return clientes;
+        return clientes.stream()
+                .map(clienteMapper::toDTO)
+                .toList();
     }
 
     // =========================
     // ATUALIZAR CLIENTE
     // =========================
-    public Cliente atualizarCliente(UUID id, Cliente dados) {
+    public ClienteResponseDTO atualizarCliente(UUID id, ClienteRequestDTO dados) {
 
-        Cliente cliente = buscarPorId(id);
+        Cliente cliente = buscarPorIdEntity(id);
 
         if (dados.getEmail() != null && !dados.getEmail().equals(cliente.getEmail())) {
             if (clienteRepository.existsByEmail(dados.getEmail())) {
@@ -115,14 +131,17 @@ public class ClienteService {
         if (dados.getWhatsapp() != null) cliente.setWhatsapp(dados.getWhatsapp());
         if (dados.getObservacoes() != null) cliente.setObservacoes(dados.getObservacoes());
 
-        return clienteRepository.save(cliente);
+        Cliente atualizado = clienteRepository.save(cliente);
+
+        return clienteMapper.toDTO(atualizado);
     }
 
     // =========================
     // DELETAR CLIENTE
     // =========================
     public void deletarCliente(UUID id) {
-        Cliente cliente = buscarPorId(id);
+        Cliente cliente = buscarPorIdEntity(id);
         clienteRepository.delete(cliente);
     }
+
 }

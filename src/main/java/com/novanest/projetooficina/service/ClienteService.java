@@ -49,7 +49,7 @@ public class ClienteService {
     }
 
     // =========================
-    // LISTAR TODOS
+    // LISTAR TODOS OS CLIENTES
     // =========================
     public List<ClienteResponseDTO> listarTodos() {
 

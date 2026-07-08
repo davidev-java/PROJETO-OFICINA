@@ -1,5 +1,6 @@
 package com.novanest.projetooficina;
 
+import com.novanest.projetooficina.entity.Usuario;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

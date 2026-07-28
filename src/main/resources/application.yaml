@@ -31,4 +31,4 @@ app:
     expiration-ms: 3600000 # 1h
 
   frontend:
-    redirect-url: http://localhost:3000/login/callback
+    origin: ${FRONTEND_ORIGIN:http://localhost:3000}

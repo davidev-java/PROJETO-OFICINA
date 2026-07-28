@@ -18,8 +18,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final JwtService jwtService;
 
-    @Value("${app.frontend.redirect-url}")
-    private String frontendRedirectUrl;
+    @Value("${app.frontend.origin}")
+    private String frontendOrigin;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -29,7 +29,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         String token = jwtService.gerarToken(principal.getUsuario());
 
-        String redirectUrl = UriComponentsBuilder.fromUriString(frontendRedirectUrl)
+        String redirectUrl = UriComponentsBuilder.fromUriString(frontendOrigin + "/login/callback")
                 .queryParam("token", token)
                 .build()
                 .toUriString();

@@ -25,10 +25,10 @@ spring:
               - email
               - profile
 
-  app:
-    jwt:
-      secret: ${JWT_SECRET}
-      expiration-ms: 3600000 # 1h
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-ms: 3600000 # 1h
 
-    frontend:
-      redirect-url: http://localhost:3000/login/callback
+  frontend:
+    redirect-url: http://localhost:3000/login/callback

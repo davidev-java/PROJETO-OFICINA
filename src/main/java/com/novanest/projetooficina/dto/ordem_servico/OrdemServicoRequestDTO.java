@@ -1,17 +1,16 @@
 package com.novanest.projetooficina.dto.ordem_servico;
 
-import com.novanest.projetooficina.entity.Cliente;
-import com.novanest.projetooficina.entity.Veiculo;
 import com.novanest.projetooficina.enums.StatusOS;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 public class OrdemServicoRequestDTO {
 
-    private Cliente cliente;
-    private Veiculo veiculo;
+    private UUID clienteId;
+    private UUID veiculoId;
     private StatusOS statusOS;
     private String descricaoProblema;
 

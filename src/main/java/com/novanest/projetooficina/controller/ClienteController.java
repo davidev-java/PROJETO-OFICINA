@@ -7,6 +7,7 @@ import com.novanest.projetooficina.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,7 +20,8 @@ public class ClienteController {
 
     private final ClienteService service;
 
-    // CREATE
+    // CREATE (recepção cadastra o cliente)
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE')")
     @PostMapping
     public ResponseEntity<ClienteResponseDTO> salvarCliente(@RequestBody ClienteRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -27,6 +29,7 @@ public class ClienteController {
     }
 
     // UPDATE
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE')")
     @PutMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> atualizarCliente(
             @PathVariable UUID id,
@@ -36,6 +39,7 @@ public class ClienteController {
     }
 
     // DELETE
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCliente(@PathVariable UUID id) {
         service.deletarCliente(id);
@@ -43,24 +47,28 @@ public class ClienteController {
     }
 
     // LIST ALL
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
     @GetMapping
     public List<ClienteResponseDTO> listarClientes() {
         return service.listarTodos();
     }
 
     // GET BY ID
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
     @GetMapping("/{id}")
     public ResponseEntity<ClienteResponseDTO> buscarPorId(@PathVariable UUID id) {
         return ResponseEntity.ok(service.buscarPorId(id));
     }
 
     // GET BY CPF
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
     @GetMapping("/cpf/{cpf}")
     public ResponseEntity<ClienteResponseDTO> buscarPorCpf(@PathVariable String cpf) {
         return ResponseEntity.ok(service.buscarPorCpf(cpf));
     }
 
     // GET BY NAME
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
     @GetMapping("/nome")
     public ResponseEntity<List<ClienteResponseDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(service.buscarPorNome(nome));

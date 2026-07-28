@@ -24,6 +24,8 @@ public class OrdemServicoService {
     private final OrdemServicoRepository repository;
     private final OrdemServicoValidate validar;
     private final OrdemServicoMapper mapper;
+    private final ClienteService clienteService;
+    private final VeiculoService veiculoService;
 
 
     // =========================
@@ -31,6 +33,9 @@ public class OrdemServicoService {
     // =========================
     public OrdemServicoResponseDTO criarOrdemServico(OrdemServicoRequestDTO dto) {
         OrdemServico ordemServico = mapper.toEntity(dto);
+
+        ordemServico.setCliente(clienteService.buscarPorIdEntity(dto.getClienteId()));
+        ordemServico.setVeiculo(veiculoService.buscarPorIdEntity(dto.getVeiculoId()));
 
         validar.validarOrdemServico(ordemServico);
         ordemServico.setValorTotal(calcularValorTotal(ordemServico));
@@ -129,6 +134,14 @@ public class OrdemServicoService {
     // =========================
     public OrdemServicoResponseDTO atualizarOrdemServico(UUID id, OrdemServicoRequestDTO dados) {
         OrdemServico os = buscarPorIdEntity(id);
+
+        if (dados.getClienteId() != null) {
+            os.setCliente(clienteService.buscarPorIdEntity(dados.getClienteId()));
+        }
+
+        if (dados.getVeiculoId() != null) {
+            os.setVeiculo(veiculoService.buscarPorIdEntity(dados.getVeiculoId()));
+        }
 
         os.setDescricaoProblema(dados.getDescricaoProblema());
         os.setValorMaoDeObra(dados.getValorMaoDeObra());

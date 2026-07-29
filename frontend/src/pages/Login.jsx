@@ -43,8 +43,8 @@ export function Login() {
   return (
     <div className="tela-login">
       <div className="card-login">
-        <h1>Oficina</h1>
-        <p className="subtitulo">Sistema de gerenciamento de oficina mecânica</p>
+        <h1>DAVIDEV<span style={{ color: 'var(--roxo)' }}>.</span>JAVA</h1>
+        <p className="subtitulo">Gestão de Oficina Mecânica</p>
 
         <div className="login-abas">
           <button type="button" className={aba === 'google' ? 'ativa' : ''} onClick={() => setAba('google')}>

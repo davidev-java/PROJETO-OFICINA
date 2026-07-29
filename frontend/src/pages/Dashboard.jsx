@@ -1,47 +1,66 @@
 import { useEffect, useState } from 'react'
-import { clientesApi } from '../api/clientes'
-import { veiculosApi } from '../api/veiculos'
 import { ordensServicoApi } from '../api/ordensServico'
 import { useAuth } from '../context/AuthContext'
 
 const STAFF = ['ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO']
 
+function formatarMoeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+}
+
 export function Dashboard() {
   const { usuario } = useAuth()
   const ehStaff = STAFF.includes(usuario?.role)
 
-  const [resumo, setResumo] = useState({ clientes: 0, veiculos: 0, ordens: 0 })
+  const [kpis, setKpis] = useState({ abertas: 0, naOficina: 0, faturamento: 0 })
   const [carregando, setCarregando] = useState(ehStaff)
 
   useEffect(() => {
     if (!ehStaff) return
 
-    Promise.all([clientesApi.listar(), veiculosApi.listar(), ordensServicoApi.listar()])
-      .then(([clientes, veiculos, ordens]) => {
-        setResumo({ clientes: clientes.length, veiculos: veiculos.length, ordens: ordens.length })
+    ordensServicoApi.listar()
+      .then((ordens) => {
+        const agora = new Date()
+        const abertas = ordens.filter((o) => o.status === 'ABERTA').length
+        const naOficina = ordens.filter((o) => o.status === 'EM_ANDAMENTO').length
+
+        const faturamento = ordens
+          .filter((o) => {
+            if (o.status !== 'FINALIZADA' || !o.dataFechamento) return false
+            const data = new Date(o.dataFechamento)
+            return data.getMonth() === agora.getMonth() && data.getFullYear() === agora.getFullYear()
+          })
+          .reduce((soma, o) => soma + Number(o.valorTotal ?? 0), 0)
+
+        setKpis({ abertas, naOficina, faturamento })
       })
       .finally(() => setCarregando(false))
   }, [ehStaff])
 
   return (
-    <div className="pagina">
-      <h1>Olá, {usuario?.nome}</h1>
+    <div>
+      <div className="pagina-topo">
+        <div>
+          <span className="rotulo">Painel</span>
+          <h1>Olá, {usuario?.nome}</h1>
+        </div>
+      </div>
 
       {!ehStaff && <p>Bem-vindo(a) à oficina. Em breve você poderá acompanhar suas ordens de serviço por aqui.</p>}
 
       {ehStaff && (
         <div className="cards-resumo">
           <div className="card-resumo">
-            <span className="numero">{carregando ? '...' : resumo.clientes}</span>
-            <span>Clientes</span>
+            <span className="numero">{carregando ? '—' : kpis.abertas}</span>
+            <span className="rotulo">OS Abertas</span>
           </div>
           <div className="card-resumo">
-            <span className="numero">{carregando ? '...' : resumo.veiculos}</span>
-            <span>Veículos</span>
+            <span className="numero">{carregando ? '—' : kpis.naOficina}</span>
+            <span className="rotulo">Veículos na Oficina</span>
           </div>
           <div className="card-resumo">
-            <span className="numero">{carregando ? '...' : resumo.ordens}</span>
-            <span>Ordens de Serviço</span>
+            <span className="numero numero-mono">{carregando ? '—' : formatarMoeda(kpis.faturamento)}</span>
+            <span className="rotulo">Faturamento do Mês</span>
           </div>
         </div>
       )}

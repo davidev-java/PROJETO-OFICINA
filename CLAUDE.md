@@ -12,7 +12,7 @@ Projeto de estudo (curso Spring Expert / Udemy). Código bom, organizado, mas pr
 - PostgreSQL (hospedado no Neon)
 - MapStruct 1.5.5 (mapeamento entity <-> DTO)
 - Lombok
-- Frontend: React (Vite, JavaScript puro) em `frontend/`, rodando em `http://localhost:3000`. Identidade visual "davidev": sidebar fixa grafite (`#12161b`/`#171c22`/`#1d232b`) + conteúdo claro (`#eceef1`) + âmbar de destaque (`#f6b40a`/`#c98d00`); Space Grotesk (títulos), Inter (corpo), JetBrains Mono (placas/IDs/dados técnicos) via Google Fonts no `index.html`.
+- Frontend: React (Vite, JavaScript puro) em `frontend/`, rodando em `http://localhost:3000`. Identidade visual **DAVIDEV.JAVA**: tema escuro fixo (preto `#09090B`/`#14141A`/`#1C1C23`, sem variar por preferência do sistema), roxo (`#6D28FF`/`#8B5CF6`/`#A855F7`/`#4C1D95`) como único acento — nunca azul/verde/vermelho/laranja/amarelo, nem pra status. Inter Tight 800/900 (títulos e números grandes tipo KPI), Inter (corpo), JetBrains Mono (placas, números de OS, timestamps, labels uppercase) via Google Fonts no `index.html`. Ícones outline monocromáticos via `lucide-react`. Grid editorial, margens generosas (64-96px no `main.pagina-wrap`).
 
 ## Como rodar
 

@@ -4,9 +4,12 @@ import com.novanest.projetooficina.dto.veiculo.VeiculoRequestDTO;
 import com.novanest.projetooficina.dto.veiculo.VeiculoResponseDTO;
 import com.novanest.projetooficina.service.VeiculoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +21,13 @@ import java.util.UUID;
 public class VeiculoController {
 
     private final VeiculoService service;
+
+    // MEUS VEICULOS (role CLIENTE - so os proprios, nao mexe na matriz de permissao do staff)
+    @PreAuthorize("hasRole('CLIENTE')")
+    @GetMapping("/meus")
+    public List<VeiculoResponseDTO> meusVeiculos(Authentication authentication) {
+        return service.buscarMeusVeiculos(authentication.getName());
+    }
 
 
     // CREATE
@@ -34,6 +44,13 @@ public class VeiculoController {
     @GetMapping
     public List<VeiculoResponseDTO> listarVeiculos() {
         return service.listarTodos();
+    }
+
+    // LIST PAGINADO (?page=0&size=20) - endpoint novo, nao substitui o de cima
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
+    @GetMapping("/paginado")
+    public Page<VeiculoResponseDTO> listarVeiculosPaginado(Pageable pageable) {
+        return service.listarPaginado(pageable);
     }
 
 

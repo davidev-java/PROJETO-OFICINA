@@ -29,6 +29,14 @@ public class GlobalExceptionHandler {
     }
 
     // =========================
+    // CREDENCIAIS INVÁLIDAS NO LOGIN LOCAL (401)
+    // =========================
+    @ExceptionHandler(CredenciaisInvalidasException.class)
+    public ResponseEntity<Object> handleCredenciaisInvalidas(CredenciaisInvalidasException ex) {
+        return corpoErro(HttpStatus.UNAUTHORIZED, ex.getMessage());
+    }
+
+    // =========================
     // REGRA DE NEGÓCIO INVÁLIDA (400)
     // =========================
     @ExceptionHandler(IllegalArgumentException.class)

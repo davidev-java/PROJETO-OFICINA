@@ -69,6 +69,10 @@ public class OrdemServico {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal valorTotal;
 
+    // MARCA DADOS DO MODO DEMO (resetados periodicamente, isolados dos dados reais)
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean demo = false;
+
     @PrePersist
     public void prePersist() {
         this.dataAbertura = LocalDate.now();

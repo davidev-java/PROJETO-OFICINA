@@ -35,6 +35,7 @@ public class JwtService {
 
                 .claim("nome", usuario.getNome())
                 .claim("role", usuario.getRole().name())
+                .claim("demo", usuario.isDemo())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(getKey())
@@ -58,6 +59,11 @@ public class JwtService {
 
     public String extrairRole(String token) {
         return extrairClaims(token).get("role", String.class);
+    }
+
+    public boolean extrairDemo(String token) {
+        Boolean demo = extrairClaims(token).get("demo", Boolean.class);
+        return demo != null && demo;
     }
 
     // =========================

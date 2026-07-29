@@ -22,4 +22,9 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID
 
     boolean existsById(UUID id);
 
+    // =========================
+    // MODO DEMO
+    // =========================
+    List<OrdemServico> findByDemoTrue();
+
 }

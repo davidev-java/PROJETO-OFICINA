@@ -10,6 +10,8 @@ import com.novanest.projetooficina.mapper.OrdemServicoMapper;
 import com.novanest.projetooficina.repository.OrdemServicoRepository;
 import com.novanest.projetooficina.validate.OrdemServicoValidate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,6 +28,23 @@ public class OrdemServicoService {
     private final OrdemServicoMapper mapper;
     private final ClienteService clienteService;
     private final VeiculoService veiculoService;
+    private final UsuarioService usuarioService;
+
+    // =========================
+    // MINHAS ORDENS DE SERVICO (role CLIENTE, escopado ao proprio cadastro)
+    // =========================
+    public List<OrdemServicoResponseDTO> buscarMinhasOrdens(String emailUsuarioLogado) {
+        var usuario = usuarioService.buscarPorEmailEntity(emailUsuarioLogado);
+
+        if (usuario.getCliente() == null) {
+            return List.of();
+        }
+
+        return repository.findByClienteId(usuario.getCliente().getId())
+                .stream()
+                .map(mapper::toDTO)
+                .toList();
+    }
 
 
     // =========================
@@ -53,6 +72,13 @@ public class OrdemServicoService {
                 .stream()
                 .map(mapper::toDTO)
                 .toList();
+    }
+
+    // =========================
+    // LISTAR PAGINADO (endpoint adicional, nao quebra quem usa /ordem-servico sem paginacao)
+    // =========================
+    public Page<OrdemServicoResponseDTO> listarPaginado(Pageable pageable) {
+        return repository.findAll(pageable).map(mapper::toDTO);
     }
 
 

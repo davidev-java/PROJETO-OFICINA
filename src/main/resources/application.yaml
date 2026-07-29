@@ -35,3 +35,7 @@ app:
 
   frontend:
     origin: ${FRONTEND_ORIGIN:http://localhost:3000}
+
+  # Email que vira ADMIN automaticamente no primeiro login/cadastro - substitui
+  # a necessidade de UPDATE manual direto no banco de produção.
+  bootstrap-admin-email: ${BOOTSTRAP_ADMIN_EMAIL:}

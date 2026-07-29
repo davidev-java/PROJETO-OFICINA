@@ -13,5 +13,6 @@ public class UsuarioResponseDTO {
     private String nome;
     private String avatarUrl;
     private Role role;
+    private boolean demo;
     private LocalDateTime criadoEm;
 }

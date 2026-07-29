@@ -6,9 +6,12 @@ import com.novanest.projetooficina.dto.ordem_servico.OrdemServicoResponseDTO;
 import com.novanest.projetooficina.enums.StatusOS;
 import com.novanest.projetooficina.service.OrdemServicoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +23,13 @@ import java.util.UUID;
 public class OrdemServicoController {
 
     private final OrdemServicoService service;
+
+    // MINHAS OS (role CLIENTE - so as proprias, nao mexe na matriz de permissao do staff)
+    @PreAuthorize("hasRole('CLIENTE')")
+    @GetMapping("/minhas")
+    public List<OrdemServicoResponseDTO> minhasOrdens(Authentication authentication) {
+        return service.buscarMinhasOrdens(authentication.getName());
+    }
 
     // CREATE (atendente abre a OS)
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE')")
@@ -34,6 +44,13 @@ public class OrdemServicoController {
     @GetMapping
     public List<OrdemServicoResponseDTO> listarTodasOs() {
         return service.listarTodasOs();
+    }
+
+    // LIST PAGINADO (?page=0&size=20) - endpoint novo, nao substitui o de cima
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
+    @GetMapping("/paginado")
+    public Page<OrdemServicoResponseDTO> listarPaginado(Pageable pageable) {
+        return service.listarPaginado(pageable);
     }
 
     // GET BY ID

@@ -22,4 +22,9 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, UUID> {
 
     boolean existsByPlaca(String placa);
 
+    // =========================
+    // MODO DEMO
+    // =========================
+    List<Veiculo> findByDemoTrue();
+
 }

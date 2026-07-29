@@ -8,6 +8,8 @@ import com.novanest.projetooficina.mapper.ClienteMapper;
 import com.novanest.projetooficina.repository.ClienteRepository;
 import com.novanest.projetooficina.validate.ClienteValidate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -57,6 +59,13 @@ public class ClienteService {
                 .stream()
                 .map(clienteMapper::toDTO)
                 .toList();
+    }
+
+    // =========================
+    // LISTAR PAGINADO (endpoint adicional, nao quebra quem usa /clientes sem paginacao)
+    // =========================
+    public Page<ClienteResponseDTO> listarPaginado(Pageable pageable) {
+        return clienteRepository.findAll(pageable).map(clienteMapper::toDTO);
     }
 
     // =========================

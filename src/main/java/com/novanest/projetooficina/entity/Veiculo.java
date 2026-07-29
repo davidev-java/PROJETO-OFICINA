@@ -46,4 +46,8 @@ public class Veiculo {
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)
     private Cliente cliente;
+
+    // MARCA DADOS DO MODO DEMO (resetados periodicamente, isolados dos dados reais)
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean demo = false;
 }

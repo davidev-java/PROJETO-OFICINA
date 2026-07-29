@@ -10,6 +10,8 @@ import com.novanest.projetooficina.mapper.VeiculoMapper;
 import com.novanest.projetooficina.repository.VeiculoRepository;
 import com.novanest.projetooficina.validate.VeiculoValidate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,6 +26,23 @@ public class VeiculoService {
     private final VeiculoValidate veiculoValidate;
     private final VeiculoMapper veiculoMapper;
     private final ClienteService clienteService;
+    private final UsuarioService usuarioService;
+
+    // =========================
+    // MEUS VEICULOS (role CLIENTE, escopado ao proprio cadastro)
+    // =========================
+    public List<VeiculoResponseDTO> buscarMeusVeiculos(String emailUsuarioLogado) {
+        var usuario = usuarioService.buscarPorEmailEntity(emailUsuarioLogado);
+
+        if (usuario.getCliente() == null) {
+            return List.of();
+        }
+
+        return veiculoRepository.findByCliente_id(usuario.getCliente().getId())
+                .stream()
+                .map(veiculoMapper::toDTO)
+                .toList();
+    }
 
     // =========================
     // CRIAR VEICULO
@@ -55,6 +74,13 @@ public class VeiculoService {
                 .stream()
                 .map(veiculoMapper::toDTO)
                 .toList();
+    }
+
+    // =========================
+    // LISTAR PAGINADO (endpoint adicional, nao quebra quem usa /veiculos sem paginacao)
+    // =========================
+    public Page<VeiculoResponseDTO> listarPaginado(Pageable pageable) {
+        return veiculoRepository.findAll(pageable).map(veiculoMapper::toDTO);
     }
 
     // =========================

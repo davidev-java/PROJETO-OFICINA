@@ -1,11 +1,12 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { TelaInicializando } from './TelaInicializando'
 
 export function ProtectedRoute({ children, rolesPermitidas }) {
   const { usuario, carregando } = useAuth()
 
   if (carregando) {
-    return <div className="carregando">Carregando...</div>
+    return <TelaInicializando />
   }
 
   if (!usuario) {

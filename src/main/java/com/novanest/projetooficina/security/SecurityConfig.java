@@ -1,5 +1,6 @@
 package com.novanest.projetooficina.security;
 
+import com.novanest.projetooficina.demo.DemoRateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,6 +27,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final DemoRateLimitFilter demoRateLimitFilter;
 
     @Value("${app.frontend.origin}")
     private String frontendOrigin;
@@ -37,7 +39,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/oauth2/**", "/login/**", "/health").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/**", "/health", "/auth/**", "/demo/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 // Sem isso, requisicoes de API sem token levam redirect (302) para o login do Google
@@ -51,7 +53,8 @@ public class SecurityConfig {
                         .failureHandler((request, response, exception) ->
                                 response.sendRedirect(frontendOrigin + "/login?erro=1"))
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(demoRateLimitFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

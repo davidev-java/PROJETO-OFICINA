@@ -2,6 +2,7 @@ import { http } from './http'
 
 export const ordensServicoApi = {
   listar: () => http.get('/ordem-servico'),
+  minhas: () => http.get('/ordem-servico/minhas'),
   buscarPorId: (id) => http.get(`/ordem-servico/${id}`),
   criar: (dto) => http.post('/ordem-servico', dto),
   atualizar: (id, dto) => http.put(`/ordem-servico/${id}`, dto),

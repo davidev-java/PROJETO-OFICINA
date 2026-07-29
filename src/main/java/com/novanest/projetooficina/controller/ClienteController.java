@@ -5,6 +5,8 @@ import com.novanest.projetooficina.dto.cliente.ClienteRequestDTO;
 import com.novanest.projetooficina.dto.cliente.ClienteResponseDTO;
 import com.novanest.projetooficina.service.ClienteService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -51,6 +53,13 @@ public class ClienteController {
     @GetMapping
     public List<ClienteResponseDTO> listarClientes() {
         return service.listarTodos();
+    }
+
+    // LIST PAGINADO (?page=0&size=20&sort=nome) - endpoint novo, nao substitui o de cima
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO')")
+    @GetMapping("/paginado")
+    public Page<ClienteResponseDTO> listarClientesPaginado(Pageable pageable) {
+        return service.listarPaginado(pageable);
     }
 
     // GET BY ID

@@ -28,4 +28,9 @@ public interface ClienteRepository extends JpaRepository<Cliente, UUID> {
     Optional<Cliente> findByCpf(String cpf);
 
     List<Cliente> findByNomeContainingIgnoreCase(String nome);
+
+    // =========================
+    // MODO DEMO
+    // =========================
+    List<Cliente> findByDemoTrue();
 }

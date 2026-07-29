@@ -6,6 +6,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
         return corpoErro(HttpStatus.FORBIDDEN, "Você não tem permissão para realizar esta ação");
+    }
+
+    // =========================
+    // ROTA INEXISTENTE (404)
+    // =========================
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleRotaInexistente(NoResourceFoundException ex) {
+        return corpoErro(HttpStatus.NOT_FOUND, "Rota não encontrada");
     }
 
     // =========================

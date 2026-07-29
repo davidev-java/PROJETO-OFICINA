@@ -46,6 +46,10 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
+                        // Sem isso, falha no login do Google cai no /login?error do backend,
+                        // que nao existe (somos so API) e vira 500 em vez de mostrar erro pro usuario.
+                        .failureHandler((request, response, exception) ->
+                                response.sendRedirect(frontendOrigin + "/login?erro=1"))
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

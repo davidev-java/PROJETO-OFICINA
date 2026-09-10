@@ -541,6 +541,20 @@ main.pagina-wrap {
   overflow: visible;
 }
 
+/* So a faixa invisivel de hover recebe o mouse. Sem isso, o texto do valor
+   e o proprio ponto ficam por cima da faixa: entrar neles disparava
+   mouseleave, o texto sumia, o mouse voltava pra faixa - e piscava sem parar. */
+.grafico-svg text,
+.grafico-svg path,
+.grafico-svg circle,
+.grafico-svg line {
+  pointer-events: none;
+}
+
+.grafico-svg rect {
+  pointer-events: all;
+}
+
 .grafico-eixo {
   stroke: var(--borda);
   stroke-width: 1;

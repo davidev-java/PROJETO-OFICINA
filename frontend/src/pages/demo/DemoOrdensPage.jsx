@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { demoApi } from '../../api/demo'
 import { useAuth } from '../../context/AuthContext'
 import { useDemoDados } from '../../context/DemoDadosContext'
-import { STATUS_LABEL, formatarMoeda } from './comum'
+import { STATUS_LABEL, formatarMoeda, formatarData } from './comum'
 
 export function DemoOrdensPage() {
   const { usuario } = useAuth()
@@ -37,15 +37,16 @@ export function DemoOrdensPage() {
         <table className="tabela">
           <thead>
             <tr>
-              <th>Número</th><th>Cliente</th><th>Veículo</th><th>Status</th><th>Total</th>{podeEscrever && <th></th>}
+              <th>Número</th><th>Abertura</th><th>Cliente</th><th>Veículo</th><th>Status</th><th>Total</th>{podeEscrever && <th></th>}
             </tr>
           </thead>
           <tbody>
-            {carregando && <tr><td colSpan={6}>Carregando...</td></tr>}
-            {!carregando && ordens.length === 0 && <tr><td colSpan={6}>Nenhuma ordem no demo.</td></tr>}
+            {carregando && <tr><td colSpan={7}>Carregando...</td></tr>}
+            {!carregando && ordens.length === 0 && <tr><td colSpan={7}>Nenhuma ordem no demo.</td></tr>}
             {ordens.map((o) => (
               <tr key={o.id}>
                 <td className="mono">{o.numeroOs}</td>
+                <td className="mono">{formatarData(o.dataAbertura)}</td>
                 <td>{o.cliente?.nome}</td>
                 <td className="mono">{o.veiculo?.placa}</td>
                 <td><span className={`status status-${o.status?.toLowerCase()}`}>{STATUS_LABEL[o.status]}</span></td>

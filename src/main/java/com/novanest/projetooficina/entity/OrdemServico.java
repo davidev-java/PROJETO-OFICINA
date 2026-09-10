@@ -75,7 +75,11 @@ public class OrdemServico {
 
     @PrePersist
     public void prePersist() {
-        this.dataAbertura = LocalDate.now();
+        // So preenche se ninguem definiu antes - o seeder do modo demo grava
+        // OS com data de abertura no passado pra montar o historico.
+        if (this.dataAbertura == null) {
+            this.dataAbertura = LocalDate.now();
+        }
 
         if (this.numeroOs == null) {
             this.numeroOs = "OS-" + System.currentTimeMillis();

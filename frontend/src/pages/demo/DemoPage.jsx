@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Users, Car, Wrench } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useDemoDados } from '../../context/DemoDadosContext'
-import { STATUS_LABEL, formatarMoeda } from './comum'
+import { STATUS_LABEL, formatarMoeda, formatarData } from './comum'
 
 // Visao geral do modo demo: numeros no topo e as ultimas OS. As listas
 // completas de cada recurso viram tela propria, acessivel pelo menu lateral.
@@ -74,14 +74,15 @@ export function DemoPage() {
       <div className="tabela-wrap">
         <table className="tabela">
           <thead>
-            <tr><th>Número</th><th>Cliente</th><th>Status</th><th>Total</th></tr>
+            <tr><th>Número</th><th>Abertura</th><th>Cliente</th><th>Status</th><th>Total</th></tr>
           </thead>
           <tbody>
-            {carregando && <tr><td colSpan={4}>Carregando...</td></tr>}
-            {!carregando && ultimasOrdens.length === 0 && <tr><td colSpan={4}>Nenhuma ordem no demo.</td></tr>}
+            {carregando && <tr><td colSpan={5}>Carregando...</td></tr>}
+            {!carregando && ultimasOrdens.length === 0 && <tr><td colSpan={5}>Nenhuma ordem no demo.</td></tr>}
             {ultimasOrdens.map((o) => (
               <tr key={o.id}>
                 <td className="mono">{o.numeroOs}</td>
+                <td className="mono">{formatarData(o.dataAbertura)}</td>
                 <td>{o.cliente?.nome}</td>
                 <td><span className={`status status-${o.status?.toLowerCase()}`}>{STATUS_LABEL[o.status]}</span></td>
                 <td className="mono">{formatarMoeda(o.valorTotal)}</td>

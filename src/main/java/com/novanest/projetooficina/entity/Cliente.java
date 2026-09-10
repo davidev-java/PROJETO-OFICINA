@@ -98,6 +98,10 @@ public class Cliente {
 
     @PrePersist
     public void prePersist() {
-        this.dataCadastro = LocalDate.now();
+        // Mesma ideia do OrdemServico: se a data ja veio preenchida, respeita
+        // (o modo demo cadastra clientes espalhados ao longo do tempo).
+        if (this.dataCadastro == null) {
+            this.dataCadastro = LocalDate.now();
+        }
     }
 }

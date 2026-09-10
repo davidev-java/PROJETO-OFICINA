@@ -2,10 +2,13 @@ package com.novanest.projetooficina.repository;
 
 import com.novanest.projetooficina.entity.OrdemServico;
 import com.novanest.projetooficina.enums.StatusOS;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,7 +31,17 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID
     // =========================
     // MODO DEMO
     // =========================
+    // EntityGraph traz cliente e veiculo no mesmo select. Sem isso, listar as
+    // OS do demo dispara um select por linha pra cada relacao (N+1) - com 200+
+    // ordens sao centenas de idas ao banco.
+    @EntityGraph(attributePaths = {"cliente", "veiculo"})
     List<OrdemServico> findByDemoTrue();
+
+    // Apagar em bloco: um unico DELETE em vez de um por linha.
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM OrdemServico o WHERE o.demo = true")
+    void apagarTodasDemo();
 
     // =========================
     // RELATORIOS

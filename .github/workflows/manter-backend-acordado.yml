@@ -1,0 +1,33 @@
+# Bate no /health do backend de tempo em tempo pra ele nao dormir.
+# O plano free do Render suspende o servico depois de 15 minutos sem
+# requisicao, e acordar leva de 30s a 1 minuto - e o visitante do portfolio
+# nao espera isso.
+#
+# Precisa de um secret no repositorio chamado BACKEND_URL, com a URL do
+# backend SEM barra no final (ex.: https://projeto-oficina.onrender.com).
+# GitHub > Settings > Secrets and variables > Actions > New repository secret.
+name: Manter o backend acordado
+
+on:
+  schedule:
+    # A cada 10 minutos. O agendador do GitHub Actions costuma atrasar alguns
+    # minutos em horario de pico, por isso 10 e nao 14.
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  acordar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Chamar /health
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ]; then
+            echo "Secret BACKEND_URL nao configurado - nada a fazer."
+            exit 0
+          fi
+          # --max-time alto de proposito: se o servico ja dormiu, essa
+          # requisicao e justamente a que vai acorda-lo.
+          curl -fsS --max-time 120 --retry 2 --retry-delay 30 \
+            "${{ secrets.BACKEND_URL }}/health"
+          echo ""
+          echo "Backend respondeu."

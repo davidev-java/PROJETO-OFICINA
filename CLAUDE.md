@@ -22,7 +22,7 @@ Backend (usa JDK 21 — em ambientes sem `JAVA_HOME` configurado, use o JDK em `
 ./mvnw.cmd spring-boot:run
 ```
 
-Variáveis de ambiente obrigatórias (não versionadas, guardadas no run config do IntelliJ em `.idea/workspace.xml`, que não vai pro Git): `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`. Opcionais: `FRONTEND_ORIGIN` (default `http://localhost:3000`, usado no CORS e no redirect pós-login do Google), `BOOTSTRAP_ADMIN_EMAIL` (email que vira `ADMIN` automaticamente no primeiro login/cadastro — substitui promoção manual via `UPDATE` direto no banco), `PORT` (Cloud Run injeta isso; default `8080`).
+Variáveis de ambiente obrigatórias (não versionadas, guardadas no run config do IntelliJ em `.idea/workspace.xml`, que não vai pro Git): `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`. Opcionais: `JPA_SHOW_SQL` (`true` liga o log de SQL no console — desligado por padrão porque a base do modo demo tem centenas de linhas e formatar cada INSERT trava o boot no plano free), `FRONTEND_ORIGIN` (default `http://localhost:3000`, usado no CORS e no redirect pós-login do Google), `BOOTSTRAP_ADMIN_EMAIL` (email que vira `ADMIN` automaticamente no primeiro login/cadastro — substitui promoção manual via `UPDATE` direto no banco), `PORT` (Cloud Run injeta isso; default `8080`).
 
 Frontend:
 
@@ -106,6 +106,7 @@ Frontend e backend são deploys separados — Vercel não roda o backend Spring 
 - **Backend → Render/Railway/Fly.io** (qualquer um que aceite Docker): existe um `Dockerfile` na raiz pronto pra isso (build multi-stage com Maven + JRE 21). Env vars: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `FRONTEND_ORIGIN` (URL da Vercel, sem barra no final).
 - Depois de saber a URL do backend em produção, atualizar no **Google Cloud Console** (OAuth Client) o "Authorized redirect URI" para `https://<url-do-backend>/login/oauth2/code/google`.
 - Neon (banco) já é cloud, não muda nada no deploy.
+- **Manter o backend acordado**: o plano free do Render suspende o serviço após 15 min sem requisição. `.github/workflows/manter-backend-acordado.yml` chama `/health` a cada 10 min; precisa do secret `BACKEND_URL` no repositório (URL do backend, sem barra no final). O agendador do GitHub Actions atrasa em horário de pico e é desligado em repositório sem commits há 60 dias — um monitor externo (UptimeRobot, cron-job.org) é mais confiável para isso.
 
 ## Workflow de git
 

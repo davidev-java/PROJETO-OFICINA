@@ -2,8 +2,12 @@ package com.novanest.projetooficina.repository;
 
 import com.novanest.projetooficina.entity.Cliente;
 import com.novanest.projetooficina.entity.Veiculo;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +29,12 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, UUID> {
     // =========================
     // MODO DEMO
     // =========================
+    @EntityGraph(attributePaths = {"cliente"})
     List<Veiculo> findByDemoTrue();
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Veiculo v WHERE v.demo = true")
+    void apagarTodosDemo();
 
 }

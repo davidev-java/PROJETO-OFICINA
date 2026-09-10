@@ -11,11 +11,20 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    # Log de SQL fica DESLIGADO por padrao: com a base do modo demo (centenas
+    # de linhas), imprimir e formatar cada INSERT/SELECT trava o boot no plano
+    # free. Pra estudar o SQL no console, subir com JPA_SHOW_SQL=true.
+    show-sql: ${JPA_SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: ${JPA_SHOW_SQL:false}
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          # Manda os inserts em lote em vez de um round-trip por linha - o
+          # seeder do demo grava ~340 registros de uma vez.
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
 
   security:
     oauth2:

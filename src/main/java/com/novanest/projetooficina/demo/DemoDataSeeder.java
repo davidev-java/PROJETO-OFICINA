@@ -56,6 +56,17 @@ public class DemoDataSeeder {
     @EventListener(ApplicationReadyEvent.class)
     public void aoIniciar() {
         garantirUsuariosDemo();
+
+        // No boot, so popula se o banco estiver vazio. O backend roda em plano
+        // free e reinicia toda vez que dorme: refazer os ~340 registros a cada
+        // despertar deixava o primeiro acesso lento a toa, ja que a semente e
+        // fixa e o resultado seria identico. O reset de 6h continua cuidando
+        // de devolver a base ao estado original.
+        if (ordemServicoRepository.countByDemo(true) > 0) {
+            log.info("Modo demo ja populado - pulando a carga inicial");
+            return;
+        }
+
         resetarDadosDemo();
     }
 
@@ -101,9 +112,12 @@ public class DemoDataSeeder {
     // oficina: o portfolio nao muda de cara a cada 6 horas.
     @Transactional
     public void resetarDadosDemo() {
-        ordemServicoRepository.deleteAll(ordemServicoRepository.findByDemoTrue());
-        veiculoRepository.deleteAll(veiculoRepository.findByDemoTrue());
-        clienteRepository.deleteAll(clienteRepository.findByDemoTrue());
+        // Um DELETE por tabela, na ordem que respeita a chave estrangeira
+        // (OS aponta pra veiculo e cliente). Apagar entidade por entidade
+        // significava centenas de round-trips a cada reset.
+        ordemServicoRepository.apagarTodasDemo();
+        veiculoRepository.apagarTodosDemo();
+        clienteRepository.apagarTodosDemo();
 
         Random sorteio = new Random(SEMENTE);
 

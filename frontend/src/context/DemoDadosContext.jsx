@@ -14,6 +14,10 @@ function valorOuPadrao(resultado, padrao) {
   return resultado.status === 'fulfilled' ? resultado.value : padrao
 }
 
+function maisRecentesPrimeiro(ordens) {
+  return [...ordens].sort((a, b) => String(b.dataAbertura).localeCompare(String(a.dataAbertura)))
+}
+
 export function DemoDadosProvider({ children }) {
   const { usuario } = useAuth()
   const ehDemo = Boolean(usuario?.demo)
@@ -39,7 +43,7 @@ export function DemoDadosProvider({ children }) {
     setDados({
       clientes: valorOuPadrao(clientes, []),
       veiculos: valorOuPadrao(veiculos, []),
-      ordens: valorOuPadrao(ordens, []),
+      ordens: maisRecentesPrimeiro(valorOuPadrao(ordens, [])),
       relatorio: valorOuPadrao(relatorio, null),
     })
 

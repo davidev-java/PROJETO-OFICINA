@@ -106,7 +106,6 @@ Frontend e backend são deploys separados — Vercel não roda o backend Spring 
 - **Backend → Render/Railway/Fly.io** (qualquer um que aceite Docker): existe um `Dockerfile` na raiz pronto pra isso (build multi-stage com Maven + JRE 21). Env vars: `DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `JWT_SECRET`, `FRONTEND_ORIGIN` (URL da Vercel, sem barra no final).
 - Depois de saber a URL do backend em produção, atualizar no **Google Cloud Console** (OAuth Client) o "Authorized redirect URI" para `https://<url-do-backend>/login/oauth2/code/google`.
 - Neon (banco) já é cloud, não muda nada no deploy.
-- **Manter o backend acordado**: o plano free do Render suspende o serviço após 15 min sem requisição. `.github/workflows/manter-backend-acordado.yml` chama `/health` a cada 10 min; precisa do secret `BACKEND_URL` no repositório (URL do backend, sem barra no final). O agendador do GitHub Actions atrasa em horário de pico e é desligado em repositório sem commits há 60 dias — um monitor externo (UptimeRobot, cron-job.org) é mais confiável para isso.
 
 ## Workflow de git
 

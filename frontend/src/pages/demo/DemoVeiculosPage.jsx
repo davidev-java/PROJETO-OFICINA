@@ -1,0 +1,71 @@
+import { useEffect, useState } from 'react'
+import { demoApi } from '../../api/demo'
+import { useAuth } from '../../context/AuthContext'
+
+export function DemoVeiculosPage() {
+  const { usuario } = useAuth()
+  const podeEscrever = usuario?.role === 'ADMIN'
+
+  const [veiculos, setVeiculos] = useState([])
+  const [carregando, setCarregando] = useState(true)
+  const [erro, setErro] = useState(null)
+
+  function carregar() {
+    setCarregando(true)
+    demoApi.listarVeiculos()
+      .then(setVeiculos)
+      .catch((e) => setErro(e.message))
+      .finally(() => setCarregando(false))
+  }
+
+  useEffect(carregar, [])
+
+  async function excluir(id) {
+    try {
+      await demoApi.deletarVeiculo(id)
+      carregar()
+    } catch (e) {
+      setErro(e.message)
+    }
+  }
+
+  return (
+    <div>
+      <div className="pagina-topo">
+        <div>
+          <span className="rotulo">Demonstração</span>
+          <h1>Veículos</h1>
+        </div>
+      </div>
+
+      {erro && <p className="erro">{erro}</p>}
+
+      <div className="tabela-wrap">
+        <table className="tabela">
+          <thead>
+            <tr>
+              <th>Placa</th><th>Marca/Modelo</th><th>Ano</th><th>Cor</th>{podeEscrever && <th></th>}
+            </tr>
+          </thead>
+          <tbody>
+            {carregando && <tr><td colSpan={5}>Carregando...</td></tr>}
+            {!carregando && veiculos.length === 0 && <tr><td colSpan={5}>Nenhum veículo no demo.</td></tr>}
+            {veiculos.map((v) => (
+              <tr key={v.id}>
+                <td className="mono">{v.placa}</td>
+                <td>{v.marca} {v.modelo}</td>
+                <td className="mono">{v.ano}</td>
+                <td>{v.cor}</td>
+                {podeEscrever && (
+                  <td className="acoes">
+                    <button className="link-perigo" onClick={() => excluir(v.id)}>Excluir</button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}

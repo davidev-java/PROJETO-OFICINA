@@ -1,121 +1,99 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { Users, Car, Wrench } from 'lucide-react'
 import { demoApi } from '../../api/demo'
 import { useAuth } from '../../context/AuthContext'
+import { STATUS_LABEL, formatarMoeda } from './comum'
 
-const STATUS_LABEL = {
-  ABERTA: 'Aberta',
-  EM_ANDAMENTO: 'Em andamento',
-  FINALIZADA: 'Finalizada',
-  CANCELADA: 'Cancelada',
-}
-
-// Painel unico do modo demo: mostra os 3 recursos lado a lado. Leitura pra
-// qualquer um (inclusive o "visitante"), exclusao disponivel só quando
-// logado como admin_demo (a API já reforça isso, aqui é só UX).
+// Visao geral do modo demo: numeros no topo e as ultimas OS. As listas
+// completas de cada recurso viram tela propria, acessivel pelo menu lateral.
 export function DemoPage() {
   const { usuario } = useAuth()
   const podeEscrever = usuario?.role === 'ADMIN'
 
-  const [clientes, setClientes] = useState([])
-  const [veiculos, setVeiculos] = useState([])
-  const [ordens, setOrdens] = useState([])
+  const [dados, setDados] = useState({ clientes: [], veiculos: [], ordens: [] })
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState(null)
 
-  function carregar() {
-    setCarregando(true)
+  useEffect(() => {
     Promise.all([demoApi.listarClientes(), demoApi.listarVeiculos(), demoApi.listarOrdens()])
-      .then(([c, v, o]) => {
-        setClientes(c)
-        setVeiculos(v)
-        setOrdens(o)
-      })
+      .then(([clientes, veiculos, ordens]) => setDados({ clientes, veiculos, ordens }))
       .catch((e) => setErro(e.message))
       .finally(() => setCarregando(false))
-  }
+  }, [])
 
-  useEffect(carregar, [])
+  const emAberto = dados.ordens.filter((o) => o.status === 'ABERTA' || o.status === 'EM_ANDAMENTO').length
+  const faturado = dados.ordens
+    .filter((o) => o.status === 'FINALIZADA')
+    .reduce((soma, o) => soma + Number(o.valorTotal ?? 0), 0)
 
-  async function excluirCliente(id) {
-    try {
-      await demoApi.deletarCliente(id)
-      carregar()
-    } catch (e) {
-      setErro(e.message)
-    }
-  }
-
-  if (carregando) return <p>Carregando dados demo...</p>
+  const ultimasOrdens = [...dados.ordens].slice(0, 5)
 
   return (
     <div>
       <div className="pagina-topo">
-        <h1>Painel Demo</h1>
+        <div>
+          <span className="rotulo">Demonstração</span>
+          <h1>Visão geral</h1>
+        </div>
       </div>
 
       {erro && <p className="erro">{erro}</p>}
 
-      <p>
-        Você está logado como <strong>{podeEscrever ? 'admin_demo' : 'visitante'}</strong>.
-        {podeEscrever ? ' Você pode criar/excluir dados demo.' : ' Acesso somente leitura.'}
+      <p className="demo-explicacao">
+        Você entrou como <strong>{podeEscrever ? 'admin_demo' : 'visitante'}</strong>
+        {podeEscrever ? ' — pode criar e excluir registros.' : ' — acesso somente leitura.'}{' '}
+        Tudo aqui é fictício, isolado do sistema real e recriado a cada 6 horas.
       </p>
 
-      <h2 style={{ marginTop: 28 }}>Clientes ({clientes.length})</h2>
-      <div className="tabela-wrap">
-        <table className="tabela">
-          <thead>
-            <tr>
-              <th>Nome</th><th>Tipo</th><th>Telefone</th><th>Cidade/UF</th>{podeEscrever && <th></th>}
-            </tr>
-          </thead>
-          <tbody>
-            {clientes.map((c) => (
-              <tr key={c.id}>
-                <td>{c.nome}</td>
-                <td>{c.tipoCliente === 'PESSOA_FISICA' ? 'PF' : 'PJ'}</td>
-                <td>{c.telefone}</td>
-                <td>{c.cidade}/{c.estado}</td>
-                {podeEscrever && (
-                  <td><button className="link-perigo" onClick={() => excluirCliente(c.id)}>Excluir</button></td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="cards-resumo">
+        <div className="card-resumo">
+          <span className="numero">{carregando ? '—' : emAberto}</span>
+          <span className="rotulo">OS em aberto</span>
+        </div>
+        <div className="card-resumo">
+          <span className="numero">{carregando ? '—' : dados.veiculos.length}</span>
+          <span className="rotulo">Veículos cadastrados</span>
+        </div>
+        <div className="card-resumo">
+          <span className="numero numero-mono">{carregando ? '—' : formatarMoeda(faturado)}</span>
+          <span className="rotulo">Total finalizado</span>
+        </div>
       </div>
 
-      <h2 style={{ marginTop: 28 }}>Veículos ({veiculos.length})</h2>
-      <div className="tabela-wrap">
-        <table className="tabela">
-          <thead>
-            <tr><th>Placa</th><th>Marca/Modelo</th><th>Ano</th><th>Cor</th></tr>
-          </thead>
-          <tbody>
-            {veiculos.map((v) => (
-              <tr key={v.id}>
-                <td className="mono">{v.placa}</td>
-                <td>{v.marca} {v.modelo}</td>
-                <td>{v.ano}</td>
-                <td>{v.cor}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="demo-atalhos">
+        <Link to="/demo/clientes" className="demo-atalho">
+          <Users size={18} strokeWidth={1.75} />
+          <span className="demo-atalho-numero">{carregando ? '—' : dados.clientes.length}</span>
+          <span className="rotulo">Clientes</span>
+        </Link>
+        <Link to="/demo/veiculos" className="demo-atalho">
+          <Car size={18} strokeWidth={1.75} />
+          <span className="demo-atalho-numero">{carregando ? '—' : dados.veiculos.length}</span>
+          <span className="rotulo">Veículos</span>
+        </Link>
+        <Link to="/demo/ordens" className="demo-atalho">
+          <Wrench size={18} strokeWidth={1.75} />
+          <span className="demo-atalho-numero">{carregando ? '—' : dados.ordens.length}</span>
+          <span className="rotulo">Ordens de Serviço</span>
+        </Link>
       </div>
 
-      <h2 style={{ marginTop: 28 }}>Ordens de Serviço ({ordens.length})</h2>
+      <h2 className="demo-secao-titulo">Últimas ordens de serviço</h2>
       <div className="tabela-wrap">
         <table className="tabela">
           <thead>
             <tr><th>Número</th><th>Cliente</th><th>Status</th><th>Total</th></tr>
           </thead>
           <tbody>
-            {ordens.map((o) => (
+            {carregando && <tr><td colSpan={4}>Carregando...</td></tr>}
+            {!carregando && ultimasOrdens.length === 0 && <tr><td colSpan={4}>Nenhuma ordem no demo.</td></tr>}
+            {ultimasOrdens.map((o) => (
               <tr key={o.id}>
                 <td className="mono">{o.numeroOs}</td>
                 <td>{o.cliente?.nome}</td>
                 <td><span className={`status status-${o.status?.toLowerCase()}`}>{STATUS_LABEL[o.status]}</span></td>
-                <td>R$ {Number(o.valorTotal ?? 0).toFixed(2)}</td>
+                <td className="mono">{formatarMoeda(o.valorTotal)}</td>
               </tr>
             ))}
           </tbody>

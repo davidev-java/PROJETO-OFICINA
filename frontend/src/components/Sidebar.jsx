@@ -8,6 +8,7 @@ import { clientesApi } from '../api/clientes'
 import { veiculosApi } from '../api/veiculos'
 import { ordensServicoApi } from '../api/ordensServico'
 import { usuariosApi } from '../api/usuarios'
+import { demoApi } from '../api/demo'
 
 const STAFF = ['ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO']
 
@@ -42,6 +43,16 @@ export function Sidebar({ aberta, onFechar }) {
   }, [ehStaff])
 
   useEffect(() => {
+    if (!ehDemo) return
+
+    Promise.all([demoApi.listarClientes(), demoApi.listarVeiculos(), demoApi.listarOrdens()])
+      .then(([clientes, veiculos, ordens]) => {
+        setContagens((c) => ({ ...c, demoClientes: clientes.length, demoVeiculos: veiculos.length, demoOrdens: ordens.length }))
+      })
+      .catch(() => {})
+  }, [ehDemo])
+
+  useEffect(() => {
     if (!ehAdmin) return
 
     usuariosApi.listar()
@@ -62,7 +73,10 @@ export function Sidebar({ aberta, onFechar }) {
         {ehDemo && (
           <div className="sidebar-secao">
             <div className="sidebar-secao-titulo">Demonstração</div>
-            <ItemMenu to="/" label="Painel Demo" Icone={Sparkles} />
+            <ItemMenu to="/" label="Visão Geral" Icone={Sparkles} />
+            <ItemMenu to="/demo/ordens" label="Ordens de Serviço" contador={contagens.demoOrdens} Icone={Wrench} />
+            <ItemMenu to="/demo/clientes" label="Clientes" contador={contagens.demoClientes} Icone={Users} />
+            <ItemMenu to="/demo/veiculos" label="Veículos" contador={contagens.demoVeiculos} Icone={Car} />
           </div>
         )}
 
@@ -99,7 +113,9 @@ export function Sidebar({ aberta, onFechar }) {
       </nav>
 
       <div className="sidebar-rodape">
-        {usuario.avatarUrl ? (
+        {ehDemo ? (
+          <img src="/logo.png" alt="DAVIDEV.JAVA" className="avatar avatar-logo" />
+        ) : usuario.avatarUrl ? (
           <img src={usuario.avatarUrl} alt={usuario.nome} className="avatar" />
         ) : (
           <div className="avatar" />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
+import { DemoDadosProvider } from './context/DemoDadosContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Sidebar } from './components/Sidebar'
 import { DemoBanner } from './components/DemoBanner'
@@ -21,6 +22,8 @@ import { DemoPage } from './pages/demo/DemoPage'
 import { DemoClientesPage } from './pages/demo/DemoClientesPage'
 import { DemoVeiculosPage } from './pages/demo/DemoVeiculosPage'
 import { DemoOrdensPage } from './pages/demo/DemoOrdensPage'
+import { DemoRelatoriosPage } from './pages/demo/DemoRelatoriosPage'
+import { RelatoriosPage } from './pages/relatorios/RelatoriosPage'
 import { useAuth } from './context/AuthContext'
 import { aquecerBackend } from './api/http'
 
@@ -69,6 +72,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <DemoDadosProvider>
         <OverlayServidor />
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -149,9 +153,20 @@ export default function App() {
               <RotaDemo><Layout><DemoVeiculosPage /></Layout></RotaDemo>
             </ProtectedRoute>
           } />
+          <Route path="/demo/relatorios" element={
+            <ProtectedRoute>
+              <RotaDemo><Layout><DemoRelatoriosPage /></Layout></RotaDemo>
+            </ProtectedRoute>
+          } />
           <Route path="/demo/ordens" element={
             <ProtectedRoute>
               <RotaDemo><Layout><DemoOrdensPage /></Layout></RotaDemo>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/relatorios" element={
+            <ProtectedRoute rolesPermitidas={['ADMIN', 'SUPERVISOR']}>
+              <Layout><RelatoriosPage /></Layout>
             </ProtectedRoute>
           } />
 
@@ -161,6 +176,7 @@ export default function App() {
             </ProtectedRoute>
           } />
         </Routes>
+        </DemoDadosProvider>
       </AuthProvider>
     </BrowserRouter>
   )

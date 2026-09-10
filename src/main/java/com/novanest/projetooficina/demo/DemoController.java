@@ -4,9 +4,11 @@ import com.novanest.projetooficina.dto.cliente.ClienteRequestDTO;
 import com.novanest.projetooficina.dto.cliente.ClienteResponseDTO;
 import com.novanest.projetooficina.dto.ordem_servico.OrdemServicoRequestDTO;
 import com.novanest.projetooficina.dto.ordem_servico.OrdemServicoResponseDTO;
+import com.novanest.projetooficina.dto.relatorio.RelatorioResumoDTO;
 import com.novanest.projetooficina.dto.veiculo.VeiculoRequestDTO;
 import com.novanest.projetooficina.dto.veiculo.VeiculoResponseDTO;
 import com.novanest.projetooficina.enums.StatusOS;
+import com.novanest.projetooficina.service.RelatorioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class DemoController {
 
     private final DemoService service;
+    private final RelatorioService relatorioService;
 
     @GetMapping("/clientes")
     public List<ClienteResponseDTO> listarClientes() {
@@ -91,5 +94,13 @@ public class DemoController {
     public ResponseEntity<Void> deletarOrdemServico(@PathVariable UUID id) {
         service.deletarOrdemServico(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Mesmo relatorio do sistema real, calculado so em cima dos dados demo.
+    // Fica aqui (e nao no RelatorioController) porque o usuario demo e
+    // bloqueado fora de /demo/** pelo JwtAuthenticationFilter.
+    @GetMapping("/relatorios")
+    public RelatorioResumoDTO relatorios() {
+        return relatorioService.gerarResumo(true);
     }
 }

@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Users, Car, Wrench } from 'lucide-react'
-import { demoApi } from '../../api/demo'
 import { useAuth } from '../../context/AuthContext'
+import { useDemoDados } from '../../context/DemoDadosContext'
 import { STATUS_LABEL, formatarMoeda } from './comum'
 
 // Visao geral do modo demo: numeros no topo e as ultimas OS. As listas
@@ -11,23 +10,15 @@ export function DemoPage() {
   const { usuario } = useAuth()
   const podeEscrever = usuario?.role === 'ADMIN'
 
-  const [dados, setDados] = useState({ clientes: [], veiculos: [], ordens: [] })
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const { clientes, veiculos, ordens, relatorio, carregando, erro } = useDemoDados()
 
-  useEffect(() => {
-    Promise.all([demoApi.listarClientes(), demoApi.listarVeiculos(), demoApi.listarOrdens()])
-      .then(([clientes, veiculos, ordens]) => setDados({ clientes, veiculos, ordens }))
-      .catch((e) => setErro(e.message))
-      .finally(() => setCarregando(false))
-  }, [])
+  // Os numeros vem prontos do endpoint de relatorio (agregacao no banco);
+  // aqui so se escolhe quais mostrar.
+  const emAberto = (relatorio?.ordensPorStatus ?? [])
+    .filter((c) => c.status === 'ABERTA' || c.status === 'EM_ANDAMENTO')
+    .reduce((soma, c) => soma + c.quantidade, 0)
 
-  const emAberto = dados.ordens.filter((o) => o.status === 'ABERTA' || o.status === 'EM_ANDAMENTO').length
-  const faturado = dados.ordens
-    .filter((o) => o.status === 'FINALIZADA')
-    .reduce((soma, o) => soma + Number(o.valorTotal ?? 0), 0)
-
-  const ultimasOrdens = [...dados.ordens].slice(0, 5)
+  const ultimasOrdens = ordens.slice(0, 5)
 
   return (
     <div>
@@ -52,11 +43,11 @@ export function DemoPage() {
           <span className="rotulo">OS em aberto</span>
         </div>
         <div className="card-resumo">
-          <span className="numero">{carregando ? '—' : dados.veiculos.length}</span>
+          <span className="numero">{carregando ? '—' : veiculos.length}</span>
           <span className="rotulo">Veículos cadastrados</span>
         </div>
         <div className="card-resumo">
-          <span className="numero numero-mono">{carregando ? '—' : formatarMoeda(faturado)}</span>
+          <span className="numero numero-mono">{carregando ? '—' : formatarMoeda(relatorio?.faturamentoTotal)}</span>
           <span className="rotulo">Total finalizado</span>
         </div>
       </div>
@@ -64,17 +55,17 @@ export function DemoPage() {
       <div className="demo-atalhos">
         <Link to="/demo/clientes" className="demo-atalho">
           <Users size={18} strokeWidth={1.75} />
-          <span className="demo-atalho-numero">{carregando ? '—' : dados.clientes.length}</span>
+          <span className="demo-atalho-numero">{carregando ? '—' : clientes.length}</span>
           <span className="rotulo">Clientes</span>
         </Link>
         <Link to="/demo/veiculos" className="demo-atalho">
           <Car size={18} strokeWidth={1.75} />
-          <span className="demo-atalho-numero">{carregando ? '—' : dados.veiculos.length}</span>
+          <span className="demo-atalho-numero">{carregando ? '—' : veiculos.length}</span>
           <span className="rotulo">Veículos</span>
         </Link>
         <Link to="/demo/ordens" className="demo-atalho">
           <Wrench size={18} strokeWidth={1.75} />
-          <span className="demo-atalho-numero">{carregando ? '—' : dados.ordens.length}</span>
+          <span className="demo-atalho-numero">{carregando ? '—' : ordens.length}</span>
           <span className="rotulo">Ordens de Serviço</span>
         </Link>
       </div>

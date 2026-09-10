@@ -70,7 +70,16 @@ Portfólio público sem arriscar dado real: tudo isolado por uma coluna `demo` (
 - `DemoController` (`/demo/**`) espelha um subconjunto do CRUD real, mas só enxerga/cria linhas com `demo=true` — `DemoService` reforça isso em toda query. Leitura (`GET`) é pública (`permitAll`); escrita exige `hasRole('ADMIN')`.
 - `DemoDataSeeder` cria dois usuários fixos no boot (`admin_demo@oficina.demo` / `admin123`, role `ADMIN`; `visitante@oficina.demo` / `visitante123`, role `CLIENTE`) e reseta os dados demo (4 clientes, 6 veículos, 5 OS fictícios) na subida da aplicação e a cada 6h (`@Scheduled`, `initialDelay` pra não duplicar com o reset do boot). CPF/CNPJ são gerados com dígito verificador válido de verdade (`GeradorDocumento`) porque o Hibernate valida `@CPF`/`@CNPJ` automaticamente ao salvar, mesmo fora do fluxo normal da API.
 - `DemoRateLimitFilter`: limite simples por IP (30 escritas/10min) só em `POST/PUT/PATCH/DELETE /demo/**`, em memória (não sobrevive a restart, é o suficiente pro caso real: alguém clicando sem parar num app free-tier).
+- O modo demo tem menu próprio com abas: Visão Geral (`/`), Ordens (`/demo/ordens`), Clientes (`/demo/clientes`), Veículos (`/demo/veiculos`) e Relatórios (`/demo/relatorios`). Os dados são carregados **uma vez só**, no `DemoDadosProvider` (`context/DemoDadosContext`), e compartilhados entre as telas — trocar de aba não dispara request novo (era o que fazia o overlay de cold start piscar no meio da navegação). No rodapé do menu, o usuário demo usa a logo (`public/logo.png`) como foto de perfil.
 - O isolamento de acesso do lado do usuário demo (não alcançar rotas reais) é reforçado no `JwtAuthenticationFilter`, não no `DemoController` — ver seção de autenticação acima.
+
+## Relatórios
+
+`GET /relatorios/resumo` (só `ADMIN`/`SUPERVISOR`) e `GET /demo/relatorios` (leitura pública, dados demo) devolvem o mesmo `RelatorioResumoDTO`: faturamento dos últimos 6 meses, OS por status, top 5 marcas, ticket médio e totais. `RelatorioService.gerarResumo(boolean demo)` serve aos dois — muda só o filtro que vai pras queries.
+
+Os números são agregados **no banco** (`COUNT`/`SUM`/`AVG` + `GROUP BY` em `@Query` JPQL no `OrdemServicoRepository`), não em memória. As funções `year()`/`month()` são do Hibernate e funcionam tanto no PostgreSQL quanto no H2 dos testes. O service só completa os meses vazios da série e os status sem OS, pra que o gráfico não fique com buraco.
+
+No frontend, `components/graficos/` desenha tudo em SVG na mão (sem biblioteca de gráficos): `GraficoFaturamento` (área), `GraficoStatus` e `GraficoMarcas` (barras). `PainelRelatorios` monta o grid 2x2 e é reaproveitado pela tela real (`/relatorios`) e pela do demo (`/demo/relatorios`).
 
 ## Paginação
 
@@ -83,6 +92,7 @@ Além dos endpoints de listagem original (sem paginação, mantidos por compatib
 ## Simplificações conhecidas (nível "bom, não profissional")
 
 - `ddl-auto: update` no Hibernate — sem migrations (Flyway/Liquibase). Colunas `NOT NULL` novas em tabela com dados exigem `columnDefinition` com `default` (já aconteceu: `demo boolean not null` sem default quebrou em produção).
+- Backend em plano free dorme depois de um tempo parado. O frontend cobre isso com `OverlayServidor` (tela cheia acionada por qualquer request que passe de 1,5s, via pub/sub no `api/http.js`), `aquecerBackend()` no boot e `entrarComGoogle()`, que só navega pro backend depois do `/health` responder — sem isso o visitante via a página de "starting" da hospedagem.
 - Sem refresh token — o JWT expira em 1h e o usuário precisa logar de novo.
 - Menu "Funcionários" do pedido original foi consolidado com "Usuários" — não existe uma entidade `Funcionario` separada de `Usuario` no modelo atual, criar uma seria duplicar dado.
 - Rate limit do modo demo é em memória (por instância), não distribuído — não escala pra múltiplas instâncias do backend, mas o Render roda uma só.

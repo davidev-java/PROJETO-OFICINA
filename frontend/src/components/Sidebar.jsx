@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import {
-  LayoutGrid, Wrench, Users, Car, UserCog, LogOut, Sparkles,
+  LayoutGrid, Wrench, Users, Car, UserCog, LogOut, Sparkles, ChartColumn,
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { clientesApi } from '../api/clientes'
 import { veiculosApi } from '../api/veiculos'
 import { ordensServicoApi } from '../api/ordensServico'
 import { usuariosApi } from '../api/usuarios'
-import { demoApi } from '../api/demo'
+import { useDemoDados } from '../context/DemoDadosContext'
 
 const STAFF = ['ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO']
 
@@ -26,6 +26,7 @@ function ItemMenu({ to, label, contador, Icone }) {
 
 export function Sidebar({ aberta, onFechar }) {
   const { usuario, logout } = useAuth()
+  const dadosDemo = useDemoDados()
   const [contagens, setContagens] = useState({})
 
   const ehDemo = Boolean(usuario?.demo)
@@ -41,16 +42,6 @@ export function Sidebar({ aberta, onFechar }) {
       })
       .catch(() => {})
   }, [ehStaff])
-
-  useEffect(() => {
-    if (!ehDemo) return
-
-    Promise.all([demoApi.listarClientes(), demoApi.listarVeiculos(), demoApi.listarOrdens()])
-      .then(([clientes, veiculos, ordens]) => {
-        setContagens((c) => ({ ...c, demoClientes: clientes.length, demoVeiculos: veiculos.length, demoOrdens: ordens.length }))
-      })
-      .catch(() => {})
-  }, [ehDemo])
 
   useEffect(() => {
     if (!ehAdmin) return
@@ -74,9 +65,10 @@ export function Sidebar({ aberta, onFechar }) {
           <div className="sidebar-secao">
             <div className="sidebar-secao-titulo">Demonstração</div>
             <ItemMenu to="/" label="Visão Geral" Icone={Sparkles} />
-            <ItemMenu to="/demo/ordens" label="Ordens de Serviço" contador={contagens.demoOrdens} Icone={Wrench} />
-            <ItemMenu to="/demo/clientes" label="Clientes" contador={contagens.demoClientes} Icone={Users} />
-            <ItemMenu to="/demo/veiculos" label="Veículos" contador={contagens.demoVeiculos} Icone={Car} />
+            <ItemMenu to="/demo/ordens" label="Ordens de Serviço" contador={dadosDemo?.ordens.length} Icone={Wrench} />
+            <ItemMenu to="/demo/clientes" label="Clientes" contador={dadosDemo?.clientes.length} Icone={Users} />
+            <ItemMenu to="/demo/veiculos" label="Veículos" contador={dadosDemo?.veiculos.length} Icone={Car} />
+            <ItemMenu to="/demo/relatorios" label="Relatórios" Icone={ChartColumn} />
           </div>
         )}
 
@@ -85,6 +77,9 @@ export function Sidebar({ aberta, onFechar }) {
             <div className="sidebar-secao-titulo">Operação</div>
             <ItemMenu to="/" label="Dashboard" Icone={LayoutGrid} />
             {ehStaff && <ItemMenu to="/ordens" label="Ordens de Serviço" contador={contagens.ordens} Icone={Wrench} />}
+            {(usuario?.role === 'ADMIN' || usuario?.role === 'SUPERVISOR') && (
+              <ItemMenu to="/relatorios" label="Relatórios" Icone={ChartColumn} />
+            )}
             {!ehStaff && <ItemMenu to="/minhas-ordens" label="Minhas Ordens" Icone={Wrench} />}
           </div>
         )}

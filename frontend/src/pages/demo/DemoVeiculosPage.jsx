@@ -1,31 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { demoApi } from '../../api/demo'
 import { useAuth } from '../../context/AuthContext'
+import { useDemoDados } from '../../context/DemoDadosContext'
 
 export function DemoVeiculosPage() {
   const { usuario } = useAuth()
   const podeEscrever = usuario?.role === 'ADMIN'
 
-  const [veiculos, setVeiculos] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const { veiculos, carregando, erro: erroCarga, recarregar } = useDemoDados()
+  const [erroAcao, setErroAcao] = useState(null)
+  const erro = erroAcao ?? erroCarga
 
-  function carregar() {
-    setCarregando(true)
-    demoApi.listarVeiculos()
-      .then(setVeiculos)
-      .catch((e) => setErro(e.message))
-      .finally(() => setCarregando(false))
-  }
-
-  useEffect(carregar, [])
 
   async function excluir(id) {
     try {
       await demoApi.deletarVeiculo(id)
-      carregar()
+      await recarregar()
     } catch (e) {
-      setErro(e.message)
+      setErroAcao(e.message)
     }
   }
 

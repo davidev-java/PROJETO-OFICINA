@@ -1,32 +1,24 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { demoApi } from '../../api/demo'
 import { useAuth } from '../../context/AuthContext'
+import { useDemoDados } from '../../context/DemoDadosContext'
 import { STATUS_LABEL, formatarMoeda } from './comum'
 
 export function DemoOrdensPage() {
   const { usuario } = useAuth()
   const podeEscrever = usuario?.role === 'ADMIN'
 
-  const [ordens, setOrdens] = useState([])
-  const [carregando, setCarregando] = useState(true)
-  const [erro, setErro] = useState(null)
+  const { ordens, carregando, erro: erroCarga, recarregar } = useDemoDados()
+  const [erroAcao, setErroAcao] = useState(null)
+  const erro = erroAcao ?? erroCarga
 
-  function carregar() {
-    setCarregando(true)
-    demoApi.listarOrdens()
-      .then(setOrdens)
-      .catch((e) => setErro(e.message))
-      .finally(() => setCarregando(false))
-  }
-
-  useEffect(carregar, [])
 
   async function excluir(id) {
     try {
       await demoApi.deletarOrdemServico(id)
-      carregar()
+      await recarregar()
     } catch (e) {
-      setErro(e.message)
+      setErroAcao(e.message)
     }
   }
 

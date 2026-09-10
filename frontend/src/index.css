@@ -495,6 +495,239 @@ main.pagina-wrap {
   }
 }
 
+/* ===== RELATORIOS E GRAFICOS ===== */
+
+.painel-relatorios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-top: 8px;
+}
+
+.bloco-relatorio {
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-card);
+  background: var(--superficie);
+  padding: 24px 24px 20px;
+  min-width: 0;
+}
+
+.bloco-relatorio.bloco-largo {
+  grid-column: 1 / -1;
+}
+
+.bloco-relatorio header {
+  margin-bottom: 20px;
+}
+
+.bloco-relatorio h2 {
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--texto);
+  margin: 0;
+}
+
+.bloco-relatorio header p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--texto-terciario);
+}
+
+.grafico-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.grafico-eixo {
+  stroke: var(--borda);
+  stroke-width: 1;
+}
+
+.grafico-linha {
+  fill: none;
+  stroke: var(--roxo-secundario);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2000;
+  animation: desenhar-linha 600ms ease-out forwards;
+}
+
+@keyframes desenhar-linha {
+  from { stroke-dashoffset: 2000; }
+  to { stroke-dashoffset: 0; }
+}
+
+.grafico-area {
+  animation: surgir 600ms ease-out both;
+}
+
+@keyframes surgir {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.grafico-guia {
+  stroke: var(--borda);
+  stroke-width: 1;
+  opacity: 0;
+  transition: opacity 140ms ease-out;
+}
+
+.grafico-guia.visivel {
+  opacity: 1;
+}
+
+.grafico-ponto {
+  fill: var(--preto-1);
+  stroke: var(--roxo-secundario);
+  stroke-width: 2;
+  transition: r 140ms ease-out;
+}
+
+.grafico-ponto.ativo {
+  fill: var(--roxo-lilas);
+  stroke: var(--roxo-lilas);
+}
+
+.grafico-rotulo {
+  fill: var(--texto-terciario);
+  font-family: var(--fonte-mono);
+  font-size: 11px;
+}
+
+.grafico-valor {
+  fill: var(--texto);
+  font-family: var(--fonte-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.grafico-legenda {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--texto-terciario);
+}
+
+.grafico-legenda strong {
+  color: var(--texto);
+  font-family: var(--fonte-mono);
+}
+
+.grafico-vazio {
+  color: var(--texto-terciario);
+  font-size: 13px;
+  margin: 0;
+}
+
+.barras {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.barra-linha {
+  display: grid;
+  grid-template-columns: 108px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+}
+
+.barra-nome {
+  font-size: 13px;
+  color: var(--texto-secundario);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.barra-trilho {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--superficie-2);
+  overflow: hidden;
+}
+
+.barra-preenchida {
+  display: block;
+  height: 100%;
+  width: var(--largura);
+  border-radius: 999px;
+  background: var(--roxo);
+  transform-origin: left center;
+  animation: crescer-barra 600ms ease-out both;
+}
+
+@keyframes crescer-barra {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.barra-numero {
+  font-family: var(--fonte-mono);
+  font-size: 13px;
+  color: var(--texto);
+  text-align: right;
+}
+
+.ticket {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ticket-valor {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--texto);
+}
+
+.ticket-detalhe {
+  display: flex;
+  gap: 28px;
+  margin: 0;
+}
+
+.ticket-detalhe dt {
+  font-size: 12px;
+  color: var(--texto-terciario);
+}
+
+.ticket-detalhe dd {
+  margin: 4px 0 0;
+  font-family: var(--fonte-mono);
+  font-size: 14px;
+  color: var(--texto);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grafico-linha,
+  .grafico-area,
+  .barra-preenchida {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 860px) {
+  .painel-relatorios {
+    grid-template-columns: 1fr;
+  }
+
+  .barra-linha {
+    grid-template-columns: 92px 1fr 34px;
+  }
+}
+
 /* ===== BOTOES ===== */
 
 .botao {

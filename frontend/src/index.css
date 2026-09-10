@@ -254,6 +254,12 @@ textarea:focus-visible,
   border: 1px solid var(--borda);
 }
 
+.sidebar-rodape .avatar-logo {
+  object-fit: contain;
+  padding: 4px;
+  background: var(--preto-2);
+}
+
 .sidebar-rodape-info {
   flex: 1;
   min-width: 0;
@@ -433,6 +439,60 @@ main.pagina-wrap {
   font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--roxo-secundario);
+}
+
+/* ===== MODO DEMO (VISAO GERAL) ===== */
+
+.demo-explicacao {
+  color: var(--texto-secundario);
+  max-width: 640px;
+  margin: 0 0 28px;
+}
+
+.demo-atalhos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.demo-atalho {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 20px;
+  border: 1px solid var(--borda);
+  border-radius: 16px;
+  background: var(--superficie);
+  color: var(--texto-terciario);
+  text-decoration: none;
+}
+
+.demo-atalho:hover {
+  border-color: var(--roxo);
+  color: var(--texto);
+}
+
+.demo-atalho-numero {
+  font-family: var(--fonte-display);
+  font-weight: 800;
+  font-size: 26px;
+  color: var(--texto);
+  letter-spacing: -0.02em;
+}
+
+.demo-secao-titulo {
+  margin: 36px 0 14px;
+  font-size: 15px;
+  text-transform: none;
+  letter-spacing: -0.01em;
+  color: var(--texto);
+}
+
+@media (max-width: 720px) {
+  .demo-atalhos {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ===== BOTOES ===== */

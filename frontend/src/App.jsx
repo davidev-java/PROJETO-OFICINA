@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Sidebar } from './components/Sidebar'
@@ -18,6 +18,9 @@ import { MeusVeiculosPage } from './pages/cliente/MeusVeiculosPage'
 import { MinhasOrdensPage } from './pages/cliente/MinhasOrdensPage'
 import { UsuariosPage } from './pages/usuarios/UsuariosPage'
 import { DemoPage } from './pages/demo/DemoPage'
+import { DemoClientesPage } from './pages/demo/DemoClientesPage'
+import { DemoVeiculosPage } from './pages/demo/DemoVeiculosPage'
+import { DemoOrdensPage } from './pages/demo/DemoOrdensPage'
 import { useAuth } from './context/AuthContext'
 import { aquecerBackend } from './api/http'
 
@@ -29,6 +32,13 @@ const STAFF = ['ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO']
 function Home() {
   const { usuario } = useAuth()
   return usuario?.demo ? <DemoPage /> : <Dashboard />
+}
+
+// As telas /demo/** so fazem sentido pra quem entrou pelo modo demo; quem
+// esta logado de verdade volta pro Dashboard.
+function RotaDemo({ children }) {
+  const { usuario } = useAuth()
+  return usuario?.demo ? children : <Navigate to="/" replace />
 }
 
 function Layout({ children }) {
@@ -126,6 +136,22 @@ export default function App() {
           <Route path="/minhas-ordens" element={
             <ProtectedRoute rolesPermitidas={['CLIENTE']}>
               <Layout><MinhasOrdensPage /></Layout>
+            </ProtectedRoute>
+          } />
+
+          <Route path="/demo/clientes" element={
+            <ProtectedRoute>
+              <RotaDemo><Layout><DemoClientesPage /></Layout></RotaDemo>
+            </ProtectedRoute>
+          } />
+          <Route path="/demo/veiculos" element={
+            <ProtectedRoute>
+              <RotaDemo><Layout><DemoVeiculosPage /></Layout></RotaDemo>
+            </ProtectedRoute>
+          } />
+          <Route path="/demo/ordens" element={
+            <ProtectedRoute>
+              <RotaDemo><Layout><DemoOrdensPage /></Layout></RotaDemo>
             </ProtectedRoute>
           } />
 

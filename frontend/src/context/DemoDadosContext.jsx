@@ -10,6 +10,10 @@ const DemoDadosContext = createContext(null)
 
 const VAZIO = { clientes: [], veiculos: [], ordens: [], relatorio: null }
 
+function valorOuPadrao(resultado, padrao) {
+  return resultado.status === 'fulfilled' ? resultado.value : padrao
+}
+
 export function DemoDadosProvider({ children }) {
   const { usuario } = useAuth()
   const ehDemo = Boolean(usuario?.demo)
@@ -18,23 +22,30 @@ export function DemoDadosProvider({ children }) {
   const [carregando, setCarregando] = useState(false)
   const [erro, setErro] = useState(null)
 
+  // allSettled, nao all: cada parte da tela e independente. Com Promise.all,
+  // uma unica chamada que falhasse (ex.: backend antigo sem /demo/relatorios)
+  // derrubava tambem as listas que ja tinham carregado, e a tela ficava zerada.
   async function carregar() {
     setCarregando(true)
     setErro(null)
 
-    try {
-      const [clientes, veiculos, ordens, relatorio] = await Promise.all([
-        demoApi.listarClientes(),
-        demoApi.listarVeiculos(),
-        demoApi.listarOrdens(),
-        relatoriosApi.resumoDemo(),
-      ])
-      setDados({ clientes, veiculos, ordens, relatorio })
-    } catch (e) {
-      setErro(e.message)
-    } finally {
-      setCarregando(false)
-    }
+    const [clientes, veiculos, ordens, relatorio] = await Promise.allSettled([
+      demoApi.listarClientes(),
+      demoApi.listarVeiculos(),
+      demoApi.listarOrdens(),
+      relatoriosApi.resumoDemo(),
+    ])
+
+    setDados({
+      clientes: valorOuPadrao(clientes, []),
+      veiculos: valorOuPadrao(veiculos, []),
+      ordens: valorOuPadrao(ordens, []),
+      relatorio: valorOuPadrao(relatorio, null),
+    })
+
+    const falhas = [clientes, veiculos, ordens, relatorio].filter((r) => r.status === 'rejected')
+    setErro(falhas.length > 0 ? falhas[0].reason?.message ?? 'Não foi possível carregar tudo.' : null)
+    setCarregando(false)
   }
 
   useEffect(() => {

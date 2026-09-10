@@ -15,6 +15,9 @@ export function DemoRelatoriosPage() {
 
       {erro && <p className="erro">{erro}</p>}
       {carregando && <p>Calculando os números...</p>}
+      {!carregando && !relatorio && (
+        <p className="grafico-vazio">Os relatórios ainda não estão disponíveis neste servidor.</p>
+      )}
 
       <PainelRelatorios resumo={relatorio} />
     </div>

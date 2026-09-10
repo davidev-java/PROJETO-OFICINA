@@ -399,6 +399,42 @@ main.pagina-wrap {
   margin: 0;
 }
 
+/* ===== OVERLAY DE COLD START ===== */
+
+.overlay-servidor {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  text-align: center;
+  padding: 24px;
+  background: var(--preto-1);
+}
+
+.overlay-servidor h2 {
+  color: var(--texto);
+  text-transform: none;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.overlay-servidor p {
+  color: var(--texto-terciario);
+  max-width: 380px;
+  margin: 0;
+}
+
+.overlay-servidor-tempo {
+  font-family: var(--fonte-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--roxo-secundario);
+}
+
 /* ===== BOTOES ===== */
 
 .botao {
@@ -785,6 +821,8 @@ main.pagina-wrap {
   text-decoration: none;
   font-weight: 600;
   font-size: 14px;
+  width: 100%;
+  border: none;
 }
 
 .form-login {

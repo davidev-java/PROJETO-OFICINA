@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import { setToken, urlLoginGoogle } from '../api/http'
+import { entrarComGoogle, setToken } from '../api/http'
 import { authApi } from '../api/auth'
 import { useAuth } from '../context/AuthContext'
 
@@ -56,9 +56,9 @@ export function Login() {
         </div>
 
         {aba === 'google' && (
-          <a className="botao-google" href={urlLoginGoogle()}>
+          <button type="button" className="botao-google" onClick={entrarComGoogle}>
             Entrar com Google
-          </a>
+          </button>
         )}
 
         {aba === 'email' && (

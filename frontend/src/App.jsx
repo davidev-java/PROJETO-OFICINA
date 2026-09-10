@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { Sidebar } from './components/Sidebar'
 import { DemoBanner } from './components/DemoBanner'
+import { OverlayServidor } from './components/OverlayServidor'
 import { Login } from './pages/Login'
 import { LoginCallback } from './pages/LoginCallback'
 import { Dashboard } from './pages/Dashboard'
@@ -18,6 +19,7 @@ import { MinhasOrdensPage } from './pages/cliente/MinhasOrdensPage'
 import { UsuariosPage } from './pages/usuarios/UsuariosPage'
 import { DemoPage } from './pages/demo/DemoPage'
 import { useAuth } from './context/AuthContext'
+import { aquecerBackend } from './api/http'
 
 const STAFF = ['ADMIN', 'SUPERVISOR', 'ATENDENTE', 'MECANICO']
 
@@ -49,9 +51,15 @@ function Layout({ children }) {
 }
 
 export default function App() {
+  // Comeca a acordar o backend assim que o site abre, antes de qualquer clique.
+  useEffect(() => {
+    aquecerBackend()
+  }, [])
+
   return (
     <BrowserRouter>
       <AuthProvider>
+        <OverlayServidor />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/login/callback" element={<LoginCallback />} />

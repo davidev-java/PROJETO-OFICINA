@@ -880,13 +880,37 @@ main.pagina-wrap {
   text-decoration: underline;
 }
 
-.credenciais-demo {
-  margin-top: 20px;
-  padding-top: 18px;
+.bloco-demo {
+  margin-top: 24px;
+  padding-top: 20px;
   border-top: 1px solid var(--borda);
+}
+
+.botao-demo {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: var(--raio-botao);
+  border: 1px solid var(--roxo);
+  background: transparent;
+  color: var(--roxo-secundario);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.botao-demo:hover:not(:disabled) {
+  background: var(--roxo);
+  color: #fff;
+}
+
+.botao-demo:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bloco-demo p {
+  margin: 12px 0 0;
   font-size: 10px;
   color: var(--texto-terciario);
-  text-align: left;
   font-family: var(--fonte-mono);
   text-transform: uppercase;
   letter-spacing: 0.04em;

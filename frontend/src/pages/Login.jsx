@@ -15,6 +15,7 @@ export function Login() {
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState(null)
   const [enviando, setEnviando] = useState(false)
+  const [entrandoDemo, setEntrandoDemo] = useState(false)
 
   if (!carregando && usuario) {
     return <Navigate to="/" replace />
@@ -37,6 +38,25 @@ export function Login() {
       setErro(e.message)
     } finally {
       setEnviando(false)
+    }
+  }
+
+  // Entra no modo demo sem o visitante digitar nada. O usuario e criado pelo
+  // DemoDataSeeder no boot do backend e so enxerga dados demo - o
+  // JwtAuthenticationFilter barra ele em qualquer rota real.
+  async function entrarNoDemo() {
+    setErro(null)
+    setEntrandoDemo(true)
+
+    try {
+      const resposta = await authApi.login('admin_demo@oficina.demo', 'admin123')
+      setToken(resposta.token)
+      await recarregar()
+      navigate('/', { replace: true })
+    } catch (e) {
+      setErro(e.message)
+    } finally {
+      setEntrandoDemo(false)
     }
   }
 
@@ -96,9 +116,11 @@ export function Login() {
           </form>
         )}
 
-        <div className="credenciais-demo">
-          Modo demo: admin_demo@oficina.demo / admin123<br />
-          ou visitante@oficina.demo / visitante123
+        <div className="bloco-demo">
+          <button type="button" className="botao-demo" onClick={entrarNoDemo} disabled={entrandoDemo}>
+            {entrandoDemo ? 'Entrando...' : 'Explorar demo (sem cadastro)'}
+          </button>
+          <p>Dados ficticios, isolados do sistema real e resetados a cada 6h.</p>
         </div>
       </div>
     </div>
